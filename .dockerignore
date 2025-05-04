@@ -1,0 +1,41 @@
+# Git目录
+.git
+.gitignore
+
+# 编辑器配置
+.vscode
+.idea
+*.swp
+*.swo
+
+# 测试文件
+test/
+
+# 编译产物
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# 文档
+docs/
+
+# 环境文件
+.env
+.env.*
+!.env.example
+
+# 日志
+*.log
+
+# 其他临时文件
+tmp/
+temp/
+
+# macOS系统文件
+.DS_Store
+
+# 不排除
+!README.md
+!LICENSE 

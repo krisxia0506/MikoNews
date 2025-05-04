@@ -1,0 +1,17 @@
+-- 创建数据库
+CREATE DATABASE IF NOT EXISTS miko_news DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE miko_news;
+
+-- 创建文章表
+CREATE TABLE IF NOT EXISTS articles (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL DEFAULT '' COMMENT '文章标题',
+    content TEXT NOT NULL COMMENT '文章内容',
+    author_id VARCHAR(64) NOT NULL DEFAULT '' COMMENT '作者飞书OpenID',
+    author_name VARCHAR(64) NOT NULL DEFAULT '匿名用户' COMMENT '作者名字',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_author (author_id),
+    INDEX idx_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户投稿文章表';

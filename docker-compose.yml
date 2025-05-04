@@ -1,0 +1,35 @@
+services:
+  miko_news:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: miko_news
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:8080"
+    volumes:
+      - ./configs:/app/configs
+    networks:
+      - miko_network
+    environment:
+      - TZ=Asia/Shanghai
+      # 数据库配置（使用环境变量覆盖配置文件中的设置）
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      # 飞书配置（从.env文件读取）
+      - FEISHU_APP_ID=${FEISHU_APP_ID}
+      - FEISHU_APP_SECRET=${FEISHU_APP_SECRET}
+      - FEISHU_VERIFICATION_TOKEN=${FEISHU_VERIFICATION_TOKEN}
+      - FEISHU_ENCRYPT_KEY=${FEISHU_ENCRYPT_KEY}
+      # 群聊配置（多个群ID用逗号分隔）
+      - GROUP_CHATS=${GROUP_CHATS}
+      # 日志配置（可选，覆盖配置文件）
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_PATH=${LOG_PATH:-./logs/miko_news.log}
+
+networks:
+  miko_network:
+    driver: bridge 
