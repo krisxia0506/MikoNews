@@ -12,41 +12,88 @@ Miko News 是一个飞书机器人应用，旨在简化社区新闻的收集和�
 *   **群成员**: 在预先配置好的飞书群聊中接收由机器人转发的最新投稿内容。
 *   **管理员/运营**: 机器人自动完成转发和存档。您可以使用配套的 API (如果需要) 来查看历史投稿记录。
 
-### 如何部署 (推荐使用 Docker)
+### 如何部署 (推荐)
 
-推荐使用 Docker 进行部署，过程简单快捷。
+这是推荐给最终用户的部署方式，使用 Docker 镜像运行。
 
 **前提条件:**
 
-*   一台可以访问互联网并安装了 [Docker](https://docs.docker.com/get-docker/) 和 [Docker Compose](https://docs.docker.com/compose/install/) 的服务器。
-*   一个可用的 MySQL 数据库 (版本 5.7 或更高)。
+*   一台可以访问互联网并安装了 [Docker](https://docs.docker.com/get-docker/) 的服务器。
+*   一个可用的、**外部的** MySQL 数据库 (版本 5.7 或更高)。Miko News 容器本身**不包含**数据库。
 *   拥有一个配置好的飞书应用 (获取 App ID, App Secret 等信息)。
+*   获取 Miko News 的 Docker 镜像 (例如：`docker pull your-dockerhub-username/miko-news:latest` - **请将此替换为实际的镜像地址**)。
 
 **部署步骤:**
 
-1.  **准备配置:**
-    *   从代码库获取项目文件。
-    *   在项目根目录，复制环境变量模板文件：`cp .env.example .env`
-    *   编辑 `.env` 文件，填入您的飞书应用密钥、数据库连接信息和希望发布到的群聊 ID 等。
-
-2.  **初始化数据库:**
-    *   连接到您的 MySQL 数据库。
+1.  **初始化数据库:**
+    *   连接到您的**外部** MySQL 数据库。
     *   执行项目 `migrations/init.sql` 文件中的 SQL 脚本，创建所需的表结构。
       ```bash
       # 示例命令 (请替换为您的实际数据库信息)
-      mysql -h your-mysql-host -u your-db-user -p your-db-password your-db-name < migrations/init.sql
+      mysql -h your-external-mysql-host -u your-db-user -p your-db-password your-db-name < migrations/init.sql
+      ```
+
+2.  **准备环境变量:**
+    *   创建一个环境变量文件 (例如 `miko.env`)，或者准备好在 `docker run` 命令中直接传入环境变量。内容应基于项目根目录下的 `.env.example` 文件，至少需要包含数据库连接信息、飞书 App 配置、以及要推送的群聊 ID (`SERVER_GROUP_CHATS`)。
+    *   示例 `miko.env` 内容:
+      ```dotenv
+      # .env example for docker run
+      APP_ENV=production
+      
+      # Database Config (Required)
+      DB_HOST=your-external-mysql-host
+      DB_PORT=3306
+      DB_USER=your-db-user
+      DB_PASSWORD=your-db-password
+      DB_NAME=your-db-name
+      DB_MAX_OPEN_CONNS=10
+      DB_MAX_IDLE_CONNS=5
+      
+      # Feishu Config (Required)
+      FEISHU_APP_ID=your_app_id
+      FEISHU_APP_SECRET=your_app_secret
+      FEISHU_VERIFICATION_TOKEN=
+      FEISHU_ENCRYPT_KEY=
+      # Group Chats (Required, comma-separated)
+      FEISHU_GROUP_CHATS=oc_your_group_id1,oc_your_group_id2 # 使用逗号分隔多个ID
+      
+      # Server Config (Required)
+      SERVER_PORT=8080
+      
+      # Logger Config (Optional, defaults are usually fine)
+      LOG_LEVEL=info
+      LOG_PATH=/app/logs/miko-news.log 
       ```
 
 3.  **启动服务:**
-    *   在项目根目录运行以下命令：
+    *   使用 `docker run` 命令启动容器，并通过 `--env-file` 或多个 `-e` 参数传入环境变量。
       ```bash
-      docker-compose up -d
+      # 使用 --env-file (推荐)
+      docker run -d --name miko-news \
+        --network host \ # 或者使用 bridge 网络并暴露端口 -p 8080:8080
+        --env-file ./miko.env \
+        -v ./logs:/app/logs \ # 挂载日志目录 (可选)
+        your-dockerhub-username/miko-news:latest # 替换为实际镜像名
+      
+      # 或者使用 -e 参数 (示例)
+      # docker run -d --name miko-news \
+      #   --network host \
+      #   -e DB_HOST=... \
+      #   -e DB_USER=... \
+      #   -e DB_PASSWORD=... \
+      #   -e DB_NAME=... \
+      #   -e FEISHU_APP_ID=... \
+      #   -e FEISHU_APP_SECRET=... \
+      #   -e FEISHU_GROUP_CHATS=oc_id1,oc_id2 \
+      #   your-dockerhub-username/miko-news:latest
       ```
-    *   服务将在后台启动。您可以查看 Docker 日志以确认启动状态。
+    *   服务将在后台启动。
 
-**详细说明:**
+**重要提示:**
 
-*   完整的 Docker 部署细节和环境变量说明，请参考 [部署文档](docs/deployment.md)。
+*   请务必将示例中的 `your-dockerhub-username/miko-news:latest` 替换为您实际使用的 Docker 镜像名称和标签。
+*   确保容器可以访问到您配置的外部 MySQL 数据库。
+*   环境变量的名称必须与 `.env.example` 文件中定义的**大写**变量名一致 (例如 `DB_HOST`, `FEISHU_APP_ID` 等)，以便应用程序能够正确读取。
 
 ### 如何投稿
 
@@ -98,7 +145,7 @@ Miko News 是一个飞书机器人应用，旨在简化社区新闻的收集和�
 
 ```mermaid
 graph LR
-    A[用户（飞书）] -->|富文本消息（title:“投稿”）| B[飞书平台]
+    A[用户（飞书）] -->|富文本消息（title:"投稿"）| B[飞书平台]
     B -->|事件回调 （WebSocket）| C{MikoNews 应用}
     C -->|获取用户信息| B
     B -->|用户信息| C
@@ -244,34 +291,40 @@ MikoNews/
 └── go.sum
 ```
 
-### 本地开发环境设置
+### 本地开发 (使用 Docker Compose)
+
+对于本地开发和测试，推荐使用 Docker Compose 来快速启动服务及其依赖（如果配置了的话）。
 
 **前提条件:**
 
-*   Go 1.24+
-*   MySQL 5.7+
+*   Go 1.24+ (用于代码编辑、编译、测试等本地操作)
+*   [Docker](https://docs.docker.com/get-docker/)
+*   [Docker Compose](https://docs.docker.com/compose/install/)
+*   MySQL 5.7+ (如果是外部数据库；`docker-compose.yml` **可能** 包含一个用于开发的数据库服务)
 *   飞书开发者账号和应用配置
 
 **步骤:**
 
 1.  **配置:**
-    *   复制配置文件模板: `cp configs/config.yaml.example configs/config.yaml`
-    *   编辑 `configs/config.yaml`，填入您的飞书应用配置 (App ID, Secret等) 和 MySQL 数据库连接信息。
-    > **注意**: `configs/config.yaml` 已加入 `.gitignore`，不会提交到版本库。
+    *   复制环境变量模板文件: `cp .env.example .env`
+    *   编辑 `.env` 文件，填入您的飞书应用配置 (App ID, Secret等) 和 MySQL 数据库连接信息。**注意：这里的数据库配置应指向您本地开发使用的数据库** (可能是 Docker Compose 启动的，也可能是本地安装的)。
+    *   **检查 `docker-compose.yml`**: 确认它是否定义了数据库服务，或者它期望连接到哪个数据库地址。
+    *   (可选) 如果需要修改非环境变量控制的配置，可以编辑 `configs/config.yaml` (基于 `configs/config.yaml.example` 创建)。
 
 2.  **数据库初始化:**
-    *   连接到您的 MySQL 数据库。
+    *   连接到您本地开发使用的 MySQL 数据库。
     *   执行 `migrations/init.sql` 脚本创建表结构。
       ```bash
-      mysql -u your-db-user -p your-db-password your-db-name < migrations/init.sql
+      # 示例: 连接到本地 docker-compose 启动的 mysql 服务
+      # mysql -h 127.0.0.1 -P 3306 -u user -p password miko_news < migrations/init.sql
       ```
 
 3.  **启动服务:**
     *   在项目根目录运行:
       ```bash
-      go run cmd/main.go
+      docker-compose up --build -d # --build 确保使用最新代码构建镜像
       ```
-    *   服务将在配置的端口（默认为 8080）启动，并同时启动 WebSocket 连接监听飞书事件。
+    *   服务（以及可能的数据库服务）将在后台启动。您可以使用 `docker-compose logs -f` 查看日志。
 
 ### API 接口
 
@@ -307,9 +360,9 @@ go test ./...
 go test -cover ./...
 ```
 
-### 部署 (Docker)
+### 部署 (Docker 镜像)
 
-本项目推荐使用 Docker 进行部署，请参考 **面向用户** 部分的部署说明或查看 [部署文档](docs/deployment.md)。
+如需将应用部署到生产或测试环境，请参考 **面向用户** 部分关于使用 `docker pull` 和 `docker run` 的部署说明。
 
 ### 许可证
 

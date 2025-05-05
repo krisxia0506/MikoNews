@@ -25,7 +25,7 @@ services:
       - FEISHU_VERIFICATION_TOKEN=${FEISHU_VERIFICATION_TOKEN}
       - FEISHU_ENCRYPT_KEY=${FEISHU_ENCRYPT_KEY}
       # 群聊配置（多个群ID用逗号分隔）
-      - GROUP_CHATS=${GROUP_CHATS}
+      - FEISHU_GROUP_CHATS=${FEISHU_GROUP_CHATS}
       # 日志配置（可选，覆盖配置文件）
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - LOG_PATH=${LOG_PATH:-./logs/miko_news.log}

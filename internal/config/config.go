@@ -112,7 +112,7 @@ func overrideFromEnv(cfg *Config) {
 	}
 
 	// 群聊ID列表
-	if groupChats := os.Getenv("GROUP_CHATS"); groupChats != "" {
+	if groupChats := os.Getenv("FEISHU_GROUP_CHATS"); groupChats != "" {
 		cfg.Feishu.GroupChats = strings.Split(groupChats, ",")
 	}
 
