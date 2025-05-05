@@ -1,7 +1,6 @@
 package router
 
 import (
-	_ "MikoNews/internal/api/docs" // 导入 docs 包，swag init 需要
 	"MikoNews/internal/api/handler"
 	"MikoNews/internal/api/middleware"
 	"MikoNews/internal/config"
