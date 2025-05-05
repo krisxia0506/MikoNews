@@ -22,6 +22,7 @@ type FeishuConfig struct {
 	AppSecret         string `yaml:"app_secret"`         // 飞书应用的 App Secret
 	VerificationToken string `yaml:"verification_token"` // 事件订阅的验证令牌
 	EncryptKey        string `yaml:"encrypt_key"`        // 事件订阅的加密密钥
+	GroupChats        []string `yaml:"group_chats"`        // 群聊ID列表
 }
 
 // DatabaseConfig 结构体表示数据库配置
@@ -37,8 +38,7 @@ type DatabaseConfig struct {
 
 // ServerConfig 结构体表示服务器配置
 type ServerConfig struct {
-	Port       int      `yaml:"port"`        // 服务器监听端口
-	GroupChats []string `yaml:"group_chats"` // 群聊ID列表
+	Port int `yaml:"port"` // 服务器监听端口
 }
 
 // LoggerConfig 结构体表示日志配置
@@ -113,7 +113,7 @@ func overrideFromEnv(cfg *Config) {
 
 	// 群聊ID列表
 	if groupChats := os.Getenv("GROUP_CHATS"); groupChats != "" {
-		cfg.Server.GroupChats = strings.Split(groupChats, ",")
+		cfg.Feishu.GroupChats = strings.Split(groupChats, ",")
 	}
 
 	// 日志配置

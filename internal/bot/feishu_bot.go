@@ -47,7 +47,7 @@ func NewFeishuBot(conf *config.FeishuConfig, db *database.DB) *FeishuBot {
 	msgService := articleServiceImpl.NewFeishuMessageService(apiClient)
 	feishuContactService := articleServiceImpl.NewFeishuContactService(apiClient)
 	// Message Handling Strategies (Use alias 'mh')
-	submissionStrategy := mh.NewSubmissionHandlerStrategy(articleService, msgService, feishuContactService)
+	submissionStrategy := mh.NewSubmissionHandlerStrategy(articleService, msgService, feishuContactService, conf)
 	defaultStrategy := mh.NewDefaultMessageHandlerStrategy()
 
 	// Message Handling Service (Use alias 'mh')
