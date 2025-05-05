@@ -21,7 +21,7 @@ Miko News 是一个飞书机器人应用，旨在简化社区新闻的收集和�
 *   一台可以访问互联网并安装了 [Docker](https://docs.docker.com/get-docker/) 的服务器。
 *   一个可用的、**外部的** MySQL 数据库 (版本 5.7 或更高)。Miko News 容器本身**不包含**数据库。
 *   拥有一个配置好的飞书应用 (获取 App ID, App Secret 等信息)。
-*   获取 Miko News 的 Docker 镜像 (例如：`docker pull your-dockerhub-username/miko-news:latest` - **请将此替换为实际的镜像地址**)。
+*   获取 Miko News 的 Docker 镜像 (例如：`docker pull krisxia/miko-news:latest`)。
 
 **部署步骤:**
 
@@ -34,7 +34,7 @@ Miko News 是一个飞书机器人应用，旨在简化社区新闻的收集和�
       ```
 
 2.  **准备环境变量:**
-    *   创建一个环境变量文件 (例如 `miko.env`)，或者准备好在 `docker run` 命令中直接传入环境变量。内容应基于项目根目录下的 `.env.example` 文件，至少需要包含数据库连接信息、飞书 App 配置、以及要推送的群聊 ID (`SERVER_GROUP_CHATS`)。
+    *   创建一个环境变量文件 (例如 `miko.env`)，或者准备好在 `docker run` 命令中直接传入环境变量。内容应基于项目根目录下的 `.env.example` 文件，至少需要包含数据库连接信息、飞书 App 配置、以及要推送的群聊 ID (`FEISHU_GROUP_CHATS`)。
     *   示例 `miko.env` 内容:
       ```dotenv
       # .env example for docker run
@@ -73,7 +73,7 @@ Miko News 是一个飞书机器人应用，旨在简化社区新闻的收集和�
         --network host \ # 或者使用 bridge 网络并暴露端口 -p 8080:8080
         --env-file ./miko.env \
         -v ./logs:/app/logs \ # 挂载日志目录 (可选)
-        your-dockerhub-username/miko-news:latest # 替换为实际镜像名
+        krisxia/miko-news:latest # 替换为实际镜像名
       
       # 或者使用 -e 参数 (示例)
       # docker run -d --name miko-news \
@@ -85,13 +85,13 @@ Miko News 是一个飞书机器人应用，旨在简化社区新闻的收集和�
       #   -e FEISHU_APP_ID=... \
       #   -e FEISHU_APP_SECRET=... \
       #   -e FEISHU_GROUP_CHATS=oc_id1,oc_id2 \
-      #   your-dockerhub-username/miko-news:latest
+      #   krisxia/miko-news:latest
       ```
     *   服务将在后台启动。
 
 **重要提示:**
 
-*   请务必将示例中的 `your-dockerhub-username/miko-news:latest` 替换为您实际使用的 Docker 镜像名称和标签。
+*   请务必将示例中的 `krisxia/miko-news:latest` 替换为您实际使用的 Docker 镜像名称和标签。
 *   确保容器可以访问到您配置的外部 MySQL 数据库。
 *   环境变量的名称必须与 `.env.example` 文件中定义的**大写**变量名一致 (例如 `DB_HOST`, `FEISHU_APP_ID` 等)，以便应用程序能够正确读取。
 
@@ -145,7 +145,7 @@ Miko News 是一个飞书机器人应用，旨在简化社区新闻的收集和�
 
 ```mermaid
 graph LR
-    A[用户（飞书）] -->|富文本消息（title:"投稿"）| B[飞书平台]
+    A[用户（飞书）] -->|富文本消息（title:“投稿”）| B[飞书平台]
     B -->|事件回调 （WebSocket）| C{MikoNews 应用}
     C -->|获取用户信息| B
     B -->|用户信息| C
