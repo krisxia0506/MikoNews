@@ -3,6 +3,12 @@
 Miko News 是一个飞书机器人应用，旨在简化社区新闻的收集和分享流程。用户可以通过与 Miko 机器人私聊轻松投稿，机器人会自动将内容转发到指定的飞书群聊，并同时将稿件存档到数据库中作为备份记录。
 
 ---
+## 演示视频
+<div align="center">
+  <video controls src="https://github.com/user-attachments/assets/ae45177a-244f-4b49-976e-930ea19a9eed" width="600">
+    您的浏览器不支持 video 标签。
+  </video>
+</div>
 
 ## 面向用户 (For Users)
 
